@@ -136,10 +136,10 @@
               // Remove React's active styling (text-blue-500 class)
               link.classList.remove('text-blue-500');
 
-              // Remove React's underline span element
+              // Hide React's underline span element instead of removing it
               const underlineSpan = link.querySelector('span.absolute');
               if (underlineSpan) {
-                underlineSpan.remove();
+                underlineSpan.style.display = 'none';
               }
 
               const href = link.getAttribute('href');

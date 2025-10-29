@@ -94,13 +94,16 @@
 
           function setActiveLink() {
             let currentSection = '';
-            const scrollPosition = window.scrollY + NAVBAR_HEIGHT + 10; // Add small buffer
 
+            // Use getBoundingClientRect for accurate viewport-relative positioning
             sections.forEach(section => {
-              const sectionTop = section.offsetTop;
-              const sectionHeight = section.offsetHeight;
+              const rect = section.getBoundingClientRect();
+              const sectionTop = rect.top;
+              const sectionBottom = rect.bottom;
 
-              if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
+              // A section is active if its top is at or above the navbar bottom
+              // and its bottom is below the navbar bottom
+              if (sectionTop <= NAVBAR_HEIGHT + 50 && sectionBottom > NAVBAR_HEIGHT) {
                 currentSection = section.getAttribute('id');
               }
             });
@@ -121,8 +124,9 @@
             scrollTimeout = setTimeout(setActiveLink, 10);
           });
 
-          // Run initially
+          // Run initially and after a short delay to catch any late renders
           setActiveLink();
+          setTimeout(setActiveLink, 1000);
         }, 500);
       });
     </script>

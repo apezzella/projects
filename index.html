@@ -22,6 +22,27 @@
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
       }
+      /* Fix active link styling - apply to the link WITH .active class */
+      nav a.active {
+        color: rgb(59 130 246) !important; /* Blue text */
+        position: relative;
+      }
+      nav a.active::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background-color: rgb(59 130 246); /* Blue underline */
+      }
+      /* Remove any styling from the next sibling of active link */
+      nav a.active + * {
+        color: inherit !important;
+      }
+      nav a.active + *::after {
+        display: none !important;
+      }
       /* Reveal on scroll animations */
       .reveal {
         opacity: 0;

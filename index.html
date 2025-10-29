@@ -36,12 +36,10 @@
         height: 2px;
         background-color: rgb(59 130 246); /* Blue underline */
       }
-      /* Remove any styling from the next sibling of active link */
-      nav a.active + * {
-        color: inherit !important;
-      }
-      nav a.active + *::after {
-        display: none !important;
+      /* Ensure non-active links stay gray */
+      nav a:not(.active) {
+        color: rgb(107 114 128) !important; /* Gray text */
+        font-weight: 600 !important; /* Semibold, not bold */
       }
       /* Reveal on scroll animations */
       .reveal {
@@ -115,28 +113,49 @@
 
           function setActiveLink() {
             let currentSection = '';
+            let closestSection = '';
+            let closestDistance = Infinity;
 
             // Use getBoundingClientRect for accurate viewport-relative positioning
             sections.forEach(section => {
               const rect = section.getBoundingClientRect();
               const sectionTop = rect.top;
               const sectionBottom = rect.bottom;
+              const sectionId = section.getAttribute('id');
 
-              // A section is active if its top is at or above the navbar bottom
-              // and its bottom is below the navbar bottom
+              // Calculate distance from navbar bottom to section top
+              const distanceFromNavbar = Math.abs(sectionTop - NAVBAR_HEIGHT);
+
+              // Primary check: section is visible below navbar
               if (sectionTop <= NAVBAR_HEIGHT + 50 && sectionBottom > NAVBAR_HEIGHT) {
-                currentSection = section.getAttribute('id');
+                currentSection = sectionId;
+              }
+
+              // Track closest section to navbar for edge cases
+              if (sectionTop >= 0 && distanceFromNavbar < closestDistance) {
+                closestDistance = distanceFromNavbar;
+                closestSection = sectionId;
               }
             });
 
+            // If no section passed the primary check, use the closest one
+            if (!currentSection && closestSection) {
+              currentSection = closestSection;
+            }
+
             navLinks.forEach(link => {
-              // Remove our active class
+              // Remove ALL active-related classes
               link.classList.remove('active');
-
-              // Remove React's active styling (text-blue-500 class)
               link.classList.remove('text-blue-500');
+              link.classList.remove('text-blue-700');
+              link.classList.remove('text-gray-900');
 
-              // Hide React's underline span element instead of removing it
+              // Reset to default gray color (ensure consistency)
+              if (!link.classList.contains('text-gray-500')) {
+                link.classList.add('text-gray-500');
+              }
+
+              // Hide React's underline span element
               const underlineSpan = link.querySelector('span.absolute');
               if (underlineSpan) {
                 underlineSpan.style.display = 'none';
@@ -146,6 +165,8 @@
               if (href === '#' + currentSection) {
                 // Add our active class to the correct link
                 link.classList.add('active');
+                // Remove gray and ensure blue is applied
+                link.classList.remove('text-gray-500');
               }
             });
           }
@@ -155,6 +176,17 @@
           window.addEventListener('scroll', function() {
             if (scrollTimeout) clearTimeout(scrollTimeout);
             scrollTimeout = setTimeout(setActiveLink, 10);
+          });
+
+          // Add click handler to each nav link
+          navLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+              // Let the default smooth scroll happen
+              // Then update active state after a brief delay
+              setTimeout(setActiveLink, 100);
+              setTimeout(setActiveLink, 300);
+              setTimeout(setActiveLink, 600);
+            });
           });
 
           // Run initially and after a short delay to catch any late renders

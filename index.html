@@ -79,6 +79,52 @@
 </head>
   <body>
     <div id="root"></div>
-    
+    <script>
+      // Fix for active link detection with sticky navbar
+      // This ensures the correct link is highlighted when scrolling
+      document.addEventListener('DOMContentLoaded', function() {
+        const NAVBAR_HEIGHT = 80; // Must match scroll-padding-top value
+
+        // Wait for React to render the navigation
+        setTimeout(function() {
+          const sections = document.querySelectorAll('section[id]');
+          const navLinks = document.querySelectorAll('nav a[href^="#"]');
+
+          if (sections.length === 0 || navLinks.length === 0) return;
+
+          function setActiveLink() {
+            let currentSection = '';
+            const scrollPosition = window.scrollY + NAVBAR_HEIGHT + 10; // Add small buffer
+
+            sections.forEach(section => {
+              const sectionTop = section.offsetTop;
+              const sectionHeight = section.offsetHeight;
+
+              if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
+                currentSection = section.getAttribute('id');
+              }
+            });
+
+            navLinks.forEach(link => {
+              link.classList.remove('active');
+              const href = link.getAttribute('href');
+              if (href === '#' + currentSection) {
+                link.classList.add('active');
+              }
+            });
+          }
+
+          // Run on scroll with throttling
+          let scrollTimeout;
+          window.addEventListener('scroll', function() {
+            if (scrollTimeout) clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(setActiveLink, 10);
+          });
+
+          // Run initially
+          setActiveLink();
+        }, 500);
+      });
+    </script>
   </body>
 </html>

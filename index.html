@@ -36,8 +36,8 @@
         height: 2px;
         background-color: rgb(59 130 246); /* Blue underline */
       }
-      /* Ensure non-active links stay gray */
-      nav a:not(.active) {
+      /* Ensure non-active anchor links stay gray - only target section links, not buttons */
+      nav a[href^="#"]:not(.active):not([class*="bg-"]):not([class*="button"]) {
         color: rgb(107 114 128) !important; /* Gray text */
         font-weight: 600 !important; /* Semibold, not bold */
       }
@@ -116,6 +116,11 @@
             let closestSection = '';
             let closestDistance = Infinity;
 
+            // Check if we're near the bottom of the page (for last section)
+            const scrollPosition = window.scrollY + window.innerHeight;
+            const pageHeight = document.documentElement.scrollHeight;
+            const nearBottom = scrollPosition >= pageHeight - 100;
+
             // Use getBoundingClientRect for accurate viewport-relative positioning
             sections.forEach(section => {
               const rect = section.getBoundingClientRect();
@@ -138,12 +143,21 @@
               }
             });
 
+            // Special handling: if near bottom of page, activate last section
+            if (nearBottom && sections.length > 0) {
+              currentSection = sections[sections.length - 1].getAttribute('id');
+            }
+
             // If no section passed the primary check, use the closest one
             if (!currentSection && closestSection) {
               currentSection = closestSection;
             }
 
             navLinks.forEach(link => {
+              // Skip button-styled links (like Contact button)
+              const isButton = link.className.includes('bg-') || link.className.includes('button');
+              if (isButton) return;
+
               // Remove ALL active-related classes
               link.classList.remove('active');
               link.classList.remove('text-blue-500');

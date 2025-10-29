@@ -130,9 +130,21 @@
             });
 
             navLinks.forEach(link => {
+              // Remove our active class
               link.classList.remove('active');
+
+              // Remove React's active styling (text-blue-500 class)
+              link.classList.remove('text-blue-500');
+
+              // Remove React's underline span element
+              const underlineSpan = link.querySelector('span.absolute');
+              if (underlineSpan) {
+                underlineSpan.remove();
+              }
+
               const href = link.getAttribute('href');
               if (href === '#' + currentSection) {
+                // Add our active class to the correct link
                 link.classList.add('active');
               }
             });
